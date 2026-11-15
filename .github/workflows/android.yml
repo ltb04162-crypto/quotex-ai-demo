@@ -11,6 +11,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -26,6 +27,13 @@ jobs:
       - name: Extract project
         run: |
           unzip -o QuotexAI_Free_Demo_Android.zip -d project
+
+      - name: Fix Java version
+        run: |
+          APP_GRADLE=$(find project -path '*/app/build.gradle.kts' -print -quit)
+          test -n "$APP_GRADLE"
+          sed -i 's/JavaVersion.VERSION_1_8/JavaVersion.VERSION_17/g' "$APP_GRADLE"
+          sed -i 's/jvmTarget = "1.8"/jvmTarget = "17"/g' "$APP_GRADLE"
 
       - name: Build APK
         run: |
