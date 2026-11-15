@@ -1,0 +1,37 @@
+name: Android APK Build
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'QuotexAI_Free_Demo_Android.zip'
+      - '.github/workflows/android.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Unzip project
+        run: |
+          unzip -o QuotexAI_Free_Demo_Android.zip -d project
+          find project -name gradlew -exec chmod +x {} \;
+
+      - name: Build APK
+        working-directory: project
+        run: |
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: QuotexAI-Demo-APK
+          path: project/**/build/outputs/apk/debug/*.apk
