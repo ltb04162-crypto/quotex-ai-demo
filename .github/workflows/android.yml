@@ -1,3 +1,4 @@
+
 name: Android APK Build
 
 on:
@@ -11,27 +12,30 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up JDK
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Unzip project
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Extract project
         run: |
           unzip -o QuotexAI_Free_Demo_Android.zip -d project
-          find project -name gradlew -exec chmod +x {} \;
 
       - name: Build APK
-        working-directory: project
         run: |
-          ./gradlew assembleDebug
+          PROJECT_DIR=$(dirname "$(find project -name settings.gradle.kts -print -quit)")
+          test -n "$PROJECT_DIR"
+          gradle -p "$PROJECT_DIR" assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: QuotexAI-Demo-APK
           path: project/**/build/outputs/apk/debug/*.apk
+          
